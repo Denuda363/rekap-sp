@@ -14,9 +14,25 @@ export default function App() {
     return mergeData(files);
   }, [files]);
 
-  const handleFilesUploaded = (newFiles: UploadedFile[]) => {
-    setFiles(prev => [...prev, ...newFiles]);
+  const handleFilesUploaded = (newFiles: UploadedFile[], mode: 'replace' | 'append' = 'append') => {
+    if (mode === 'replace') {
+      setFiles(newFiles);
+    } else {
+      setFiles(prev => [...prev, ...newFiles]);
+    }
     setActiveTab('table');
+  };
+
+  const handleAppendFiles = (newFiles: UploadedFile[]) => {
+    setFiles(prev => [...prev, ...newFiles]);
+  };
+
+  const handleReplaceFiles = (newFiles: UploadedFile[]) => {
+    setFiles(newFiles);
+  };
+
+  const handleClearAll = () => {
+    setFiles([]);
   };
 
   return (
@@ -36,7 +52,7 @@ export default function App() {
             className={`w-full flex items-center gap-3 px-3 py-2 rounded transition-colors text-xs font-semibold ${activeTab === 'upload' ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'text-slate-600 hover:bg-slate-50'}`}
           >
             <UploadCloud size={16} />
-            Upload Files
+            Kelola & Upload
           </button>
           
           <button
@@ -45,10 +61,10 @@ export default function App() {
             disabled={files.length === 0}
           >
             <Table size={16} />
-            Data Table
+            Tabel Data
             {files.length > 0 && (
-              <span className="ml-auto text-[10px] text-blue-600 font-bold">
-                {files.length} READY
+              <span className="ml-auto text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-bold">
+                {files.length} FILE
               </span>
             )}
           </button>
@@ -68,13 +84,24 @@ export default function App() {
       <main className="flex-1 flex flex-col overflow-hidden">
         {activeTab === 'upload' && (
           <div className="p-6 h-full overflow-auto">
-            <FileUploader onUpload={handleFilesUploaded} existingFiles={files} onRemoveFile={(index) => setFiles(f => f.filter((_, i) => i !== index))} />
+            <FileUploader 
+              onUpload={handleFilesUploaded} 
+              existingFiles={files} 
+              onRemoveFile={(index) => setFiles(f => f.filter((_, i) => i !== index))}
+              onClearAll={handleClearAll}
+            />
           </div>
         )}
         
         {activeTab === 'table' && (
           <div className="flex-1 overflow-hidden flex flex-col bg-white">
-            <DataTable data={mergedData} initialHeaders={allHeaders} />
+            <DataTable 
+              data={mergedData} 
+              initialHeaders={allHeaders}
+              onAddFiles={handleAppendFiles}
+              onReplaceFiles={handleReplaceFiles}
+              onNavigateToUpload={() => setActiveTab('upload')}
+            />
           </div>
         )}
         

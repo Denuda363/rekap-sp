@@ -1,15 +1,24 @@
-import React, { useState, useMemo } from 'react';
-import { DataRow } from '../types';
-import { Download, FileText, Printer, Plus, Filter, ChevronDown, ChevronUp, Search, Settings, Trash2 } from 'lucide-react';
-import { exportToExcel, exportToCSV } from '../utils/dataProcessor';
+import React, { useState, useMemo, useRef } from 'react';
+import { DataRow, UploadedFile } from '../types';
+import { Download, FileText, Printer, Plus, Filter, ChevronDown, ChevronUp, Search, Settings, Trash2, PlusCircle, RefreshCw } from 'lucide-react';
+import { exportToExcel, exportToCSV, parseExcelFile } from '../utils/dataProcessor';
 import { exportToPDF, printData } from '../utils/pdfProcessor';
 
 interface DataTableProps {
   data: DataRow[];
   initialHeaders: string[];
+  onAddFiles?: (files: UploadedFile[]) => void;
+  onReplaceFiles?: (files: UploadedFile[]) => void;
+  onNavigateToUpload?: () => void;
 }
 
-export const DataTable: React.FC<DataTableProps> = ({ data: initialData, initialHeaders }) => {
+export const DataTable: React.FC<DataTableProps> = ({ 
+  data: initialData, 
+  initialHeaders,
+  onAddFiles,
+  onReplaceFiles,
+  onNavigateToUpload
+}) => {
   const [data, setData] = useState<DataRow[]>(initialData);
   const [headers, setHeaders] = useState<string[]>(initialHeaders);
   const [excludedHeaders, setExcludedHeaders] = useState<Record<string, boolean>>({});
@@ -22,6 +31,33 @@ export const DataTable: React.FC<DataTableProps> = ({ data: initialData, initial
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
   const [paperSize, setPaperSize] = useState<string>('A4');
   const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('landscape');
+  const [isProcessingFile, setIsProcessingFile] = useState(false);
+
+  const appendInputRef = useRef<HTMLInputElement>(null);
+  const replaceInputRef = useRef<HTMLInputElement>(null);
+
+  const handleQuickFileSelect = async (e: React.ChangeEvent<HTMLInputElement>, mode: 'append' | 'replace') => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    setIsProcessingFile(true);
+    try {
+      const parsedFiles: UploadedFile[] = [];
+      for (let i = 0; i < e.target.files.length; i++) {
+        const file = e.target.files[i];
+        const parsed = await parseExcelFile(file);
+        parsedFiles.push(parsed);
+      }
+      if (mode === 'append' && onAddFiles) {
+        onAddFiles(parsedFiles);
+      } else if (mode === 'replace' && onReplaceFiles) {
+        onReplaceFiles(parsedFiles);
+      }
+    } catch (err: any) {
+      alert(err.message || 'Gagal membaca file Excel');
+    } finally {
+      setIsProcessingFile(false);
+      e.target.value = '';
+    }
+  };
 
   // Update state when props change
   React.useEffect(() => {
@@ -138,27 +174,75 @@ export const DataTable: React.FC<DataTableProps> = ({ data: initialData, initial
   if (headers.length === 0) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-slate-50">
-        <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded flex items-center justify-center mb-3">
+        <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-3">
           <Filter size={24} />
         </div>
-        <h2 className="text-sm font-bold text-slate-800 mb-1">No Data Available</h2>
-        <p className="text-xs text-slate-500 max-w-md">Please upload some Excel or CSV files first to view and manage your data.</p>
+        <h2 className="text-sm font-bold text-slate-800 mb-1">Belum Ada Data</h2>
+        <p className="text-xs text-slate-500 max-w-md mb-4">Silakan upload file Excel atau CSV terlebih dahulu untuk melihat dan mengelola data Anda.</p>
+        {onNavigateToUpload && (
+          <button
+            onClick={onNavigateToUpload}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-2 shadow-sm"
+          >
+            <PlusCircle size={14} /> Upload File Excel Sekarang
+          </button>
+        )}
       </div>
     );
   }
 
   return (
     <div className="flex flex-col h-full bg-white">
+      {/* Hidden File Inputs for Quick Upload */}
+      <input
+        ref={appendInputRef}
+        type="file"
+        multiple
+        accept=".xlsx, .xls, .csv"
+        className="hidden"
+        onChange={(e) => handleQuickFileSelect(e, 'append')}
+      />
+      <input
+        ref={replaceInputRef}
+        type="file"
+        multiple
+        accept=".xlsx, .xls, .csv"
+        className="hidden"
+        onChange={(e) => handleQuickFileSelect(e, 'replace')}
+      />
+
       {/* Header / Actions */}
       <header className="h-14 bg-white border-b border-slate-200 px-6 flex items-center justify-between flex-none">
         <div className="flex items-center space-x-4">
           <nav className="text-xs text-slate-400 font-medium space-x-2">
             <span>Dashboard</span>
             <span>/</span>
-            <span className="text-slate-800">Merged_Master_Data</span>
+            <span className="text-slate-800 font-semibold">Merged_Master_Data</span>
           </nav>
         </div>
         <div className="flex items-center space-x-2">
+          {/* Quick Excel Action Buttons */}
+          <div className="flex items-center space-x-1.5 mr-2 pr-2 border-r border-slate-200">
+            <button
+              onClick={() => appendInputRef.current?.click()}
+              disabled={isProcessingFile}
+              className="px-2.5 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded text-xs font-semibold flex items-center transition-colors shadow-xs"
+              title="Tambah data dari file Excel lain (gabung)"
+            >
+              <PlusCircle size={14} className="mr-1.5 text-blue-600" />
+              Tambah Excel
+            </button>
+            <button
+              onClick={() => replaceInputRef.current?.click()}
+              disabled={isProcessingFile}
+              className="px-2.5 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded text-xs font-semibold flex items-center transition-colors shadow-xs"
+              title="Ganti seluruh data dengan file Excel baru"
+            >
+              <RefreshCw size={14} className={`mr-1.5 text-amber-600 ${isProcessingFile ? 'animate-spin' : ''}`} />
+              Ganti Excel
+            </button>
+          </div>
+
           {/* Paper Settings */}
           <div className="flex items-center space-x-1.5 mr-2 bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 shadow-sm">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Kertas:</span>
