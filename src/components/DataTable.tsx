@@ -212,39 +212,41 @@ export const DataTable: React.FC<DataTableProps> = ({
       />
 
       {/* Header / Actions */}
-      <header className="h-14 bg-white border-b border-slate-200 px-6 flex items-center justify-between flex-none">
+      <header className="h-auto min-h-14 bg-white border-b border-slate-200 px-4 md:px-6 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 flex-none">
         <div className="flex items-center space-x-4">
           <nav className="text-xs text-slate-400 font-medium space-x-2">
             <span>Dashboard</span>
             <span>/</span>
-            <span className="text-slate-800 font-semibold">Merged_Master_Data</span>
+            <span className="text-slate-800 font-semibold">Rekap Data SP</span>
           </nav>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 overflow-x-auto pb-1 md:pb-0 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
           {/* Quick Excel Action Buttons */}
-          <div className="flex items-center space-x-1.5 mr-2 pr-2 border-r border-slate-200">
+          <div className="flex items-center space-x-1.5 mr-2 pr-2 border-r border-slate-200 shrink-0">
             <button
               onClick={() => appendInputRef.current?.click()}
               disabled={isProcessingFile}
-              className="px-2.5 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded text-xs font-semibold flex items-center transition-colors shadow-xs"
+              className="px-2.5 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded text-xs font-semibold flex items-center transition-colors shadow-xs whitespace-nowrap"
               title="Tambah data dari file Excel lain (gabung)"
             >
               <PlusCircle size={14} className="mr-1.5 text-blue-600" />
-              Tambah Excel
+              <span className="hidden sm:inline">Tambah Excel</span>
+              <span className="sm:hidden">Tambah</span>
             </button>
             <button
               onClick={() => replaceInputRef.current?.click()}
               disabled={isProcessingFile}
-              className="px-2.5 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded text-xs font-semibold flex items-center transition-colors shadow-xs"
+              className="px-2.5 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded text-xs font-semibold flex items-center transition-colors shadow-xs whitespace-nowrap"
               title="Ganti seluruh data dengan file Excel baru"
             >
               <RefreshCw size={14} className={`mr-1.5 text-amber-600 ${isProcessingFile ? 'animate-spin' : ''}`} />
-              Ganti Excel
+              <span className="hidden sm:inline">Ganti Excel</span>
+              <span className="sm:hidden">Ganti</span>
             </button>
           </div>
 
           {/* Paper Settings */}
-          <div className="flex items-center space-x-1.5 mr-2 bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 shadow-sm">
+          <div className="flex items-center space-x-1.5 mr-2 bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 shadow-sm shrink-0">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Kertas:</span>
             <select
               value={paperSize}
@@ -257,7 +259,7 @@ export const DataTable: React.FC<DataTableProps> = ({
               <option value="LEGAL">Legal</option>
             </select>
             <div className="h-4 w-px bg-slate-200 mx-1.5" />
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Layout:</span>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider hidden sm:inline">Layout:</span>
             <select
               value={orientation}
               onChange={(e) => setOrientation(e.target.value as 'portrait' | 'landscape')}
@@ -270,34 +272,34 @@ export const DataTable: React.FC<DataTableProps> = ({
 
           <button 
             onClick={() => printData(filteredAndSortedData, activeHeaders, groupByCol, paperSize, orientation)}
-            className="px-3 py-1.5 border border-slate-200 rounded text-xs font-semibold hover:bg-slate-50 flex items-center"
+            className="px-3 py-1.5 border border-slate-200 rounded text-xs font-semibold hover:bg-slate-50 flex items-center shrink-0"
           >
-            <Printer size={14} className="mr-1.5 text-slate-500" /> Print
+            <Printer size={14} className="sm:mr-1.5 text-slate-500" /> <span className="hidden sm:inline">Print</span>
           </button>
           <button 
             onClick={() => exportToPDF(filteredAndSortedData, activeHeaders, 'merged_data.pdf', groupByCol, paperSize, orientation)}
-            className="px-3 py-1.5 border border-slate-200 rounded text-xs font-semibold hover:bg-slate-50 flex items-center"
+            className="px-3 py-1.5 border border-slate-200 rounded text-xs font-semibold hover:bg-slate-50 flex items-center shrink-0"
           >
-            <FileText size={14} className="mr-1.5 text-slate-500" /> PDF
+            <FileText size={14} className="sm:mr-1.5 text-slate-500" /> <span className="hidden sm:inline">PDF</span>
           </button>
           <button 
             onClick={() => exportToCSV(filteredAndSortedData, activeHeaders, 'merged_data.csv', groupByCol)}
-            className="px-3 py-1.5 border border-slate-200 rounded text-xs font-semibold hover:bg-slate-50 flex items-center text-slate-700"
+            className="px-3 py-1.5 border border-slate-200 rounded text-xs font-semibold hover:bg-slate-50 flex items-center text-slate-700 shrink-0"
           >
-            <Download size={14} className="mr-1.5 text-slate-500" /> CSV
+            <Download size={14} className="sm:mr-1.5 text-slate-500" /> <span className="hidden sm:inline">CSV</span>
           </button>
           <button 
             onClick={() => exportToExcel(filteredAndSortedData, activeHeaders, 'merged_data.xlsx', groupByCol)}
-            className="px-3 py-1.5 bg-emerald-600 text-white rounded text-xs font-semibold hover:bg-emerald-700 flex items-center shadow-sm"
+            className="px-3 py-1.5 bg-emerald-600 text-white rounded text-xs font-semibold hover:bg-emerald-700 flex items-center shadow-sm shrink-0 whitespace-nowrap"
           >
-            <Download size={14} className="mr-1.5" /> Export XLSX
+            <Download size={14} className="sm:mr-1.5" /> <span className="hidden sm:inline">Export XLSX</span><span className="sm:hidden">XLSX</span>
           </button>
         </div>
       </header>
 
       {/* Filter Bar */}
-      <section className="px-4 py-2 border-b border-slate-200 bg-white flex items-center justify-between flex-none">
-        <div className="flex items-center space-x-4">
+      <section className="px-4 py-2 border-b border-slate-200 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-none overflow-x-auto scrollbar-hide">
+        <div className="flex items-center space-x-4 shrink-0">
           <div className="flex items-center space-x-2 text-xs text-slate-500">
             <Search size={14} />
             <span className="font-semibold">Quick Filters</span>

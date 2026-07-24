@@ -50,46 +50,46 @@ export const Dashboard: React.FC<DashboardProps> = ({ data, headers }) => {
 
   if (headers.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center bg-slate-50">
-        <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded flex items-center justify-center mb-3">
+      <div className="flex flex-col items-center justify-center h-full text-center bg-slate-50 p-6">
+        <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-3">
           <BarChart3 size={24} />
         </div>
-        <h2 className="text-sm font-bold text-slate-800 mb-1">No Data Available</h2>
-        <p className="text-xs text-slate-500 max-w-md">Upload and merge files to see visual insights on this dashboard.</p>
+        <h2 className="text-sm font-bold text-slate-800 mb-1">Belum Ada Data</h2>
+        <p className="text-xs text-slate-500 max-w-md">Upload dan gabungkan file Excel untuk melihat visualisasi data di dashboard ini.</p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <header className="h-14 bg-white border-b border-slate-200 px-6 flex items-center justify-between flex-none">
+      <header className="h-auto min-h-14 bg-white border-b border-slate-200 px-4 md:px-6 py-3 flex items-center justify-between flex-none">
         <div className="flex items-center space-x-4">
           <nav className="text-xs text-slate-400 font-medium space-x-2">
             <span>Dashboard</span>
             <span>/</span>
-            <span className="text-slate-800">Visualizations</span>
+            <span className="text-slate-800 font-semibold">Visualisasi</span>
           </nav>
         </div>
       </header>
 
       {/* Stats row - styled to match High Density theme */}
-      <section className="p-4 grid grid-cols-4 gap-4 bg-slate-50 flex-none border-b border-slate-200">
+      <section className="p-4 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 bg-slate-50 flex-none border-b border-slate-200 overflow-x-hidden">
         <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-          <p className="text-[10px] font-bold text-slate-400 uppercase">Total Records</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase">Total Baris</p>
           <div className="flex items-end justify-between mt-1">
             <span className="text-xl font-bold text-slate-800">{data.length}</span>
-            <span className="text-[10px] text-emerald-500 font-medium">Rows</span>
+            <span className="text-[10px] text-emerald-500 font-medium">Baris</span>
           </div>
         </div>
         <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-          <p className="text-[10px] font-bold text-slate-400 uppercase">Total Columns</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase">Total Kolom</p>
           <div className="flex items-end justify-between mt-1">
             <span className="text-xl font-bold text-slate-800">{headers.length}</span>
-            <span className="text-[10px] text-blue-500 font-medium">Headers</span>
+            <span className="text-[10px] text-blue-500 font-medium">Kolom</span>
           </div>
         </div>
-        <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm col-span-2">
+        <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm col-span-2 md:col-span-2">
           <p className="text-[10px] font-bold text-slate-400 uppercase">Chart Configuration</p>
           <div className="flex items-center gap-3 mt-1.5">
             <div className="flex flex-col gap-0.5 flex-1">
